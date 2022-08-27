@@ -32,14 +32,14 @@ def download_video(link, path, res_level='FHD'):
         dynamic_streams = ['1080p|160kbps', '720p|160kbps', '720p|128kbps', '480p|160kbps', '480p|128kbps']
     for ds in dynamic_streams:
         try:
-            yt.streams.filter(res=ds.split('|')[0], progressive=False).first().download(filename=f'video_{uid}.mp4')
-            yt.streams.filter(abr=ds.split('|')[1], progressive=False).first().download(filename=f'audio_{uid}.mp3')
+            yt.streams.filter(res=ds.split('|')[0], progressive=False).first().download(filename=f'video_{uid}.mp4',output_path="./temp")
+            yt.streams.filter(abr=ds.split('|')[1], progressive=False).first().download(filename=f'audio_{uid}.mp3',output_path="./temp")
             break
         except:
             continue
         
-    audio = ffmpeg.input(f'audio_{uid}.mp3')
-    video = ffmpeg.input(f'video_{uid}.mp4')
+    audio = ffmpeg.input(f'./temp/audio_{uid}.mp3')
+    video = ffmpeg.input(f'./temp/video_{uid}.mp4')
     filename = path
     
     duplicated = ['', '1', '2', '3', '4', '5']    #if duplicated filename found, append with version number
@@ -49,6 +49,9 @@ def download_video(link, path, res_level='FHD'):
             break
         except:
             continue
+    os.remove(f"./temp/audio_{uid}.mp3")
+    os.remove(f'./temp/video_{uid}.mp4')
+    return
 
 def process(song,artist,link,title,track_num,playlist_t):
    time.sleep(5)
@@ -111,37 +114,33 @@ if typ_dld == 1:
       if rng==0:
          ytt = pytube.YouTube(url)
          path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
-         process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt._title,c,playlist.title)
-         print(f"Downloaded: {c}. "+ytt._title)
+         process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
+         print(f"Downloaded: {c}. "+ytt.title)
       else:
          if c>=n1 and c<=n2:
             ytt = pytube.YouTube(url)
             path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
-            process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt._title,c,playlist.title)
-            print(f"Downloaded: {c}. "+ytt._title)
+            process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
+            print(f"Downloaded: {c}. "+ytt.title)
          elif c>n2:
             break
       c+=1
 elif typ_dld ==2:
-    capts=input("Type 1 to download captions, if they exist: ")
-    resol = input("Enter resolution (if available, Default FHD);\n1: Upto FHD\n2: Upto 4k")
+    resol = input("Enter resolution (if available, Default FHD);\n1: Upto FHD\n2: Upto 4k\n")
     for url in playlist:
         if rng==0:
-            
-            download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt._title)}','4k' if resol == "2" else "FHD")
             ytt = pytube.YouTube(url)
-            if capts =='1':
-                caption = ytt.captions.get_by_language_code('en')
-                caption.download(srt=True,output_path=f'./videos/{playlist.title}')
-            print(f"Downloaded: {c}. "+ytt._title)
+            if not ytt.title:
+                continue
+            download_video(url,f'./videos/{playlist.title}/{c}. {ytt.title}','4K' if resol == "2" else "FHD")
+            print(f"Downloaded: {c}. "+ytt.title)
         else:
             if c>=n1 and c<=n2:
                 ytt = pytube.YouTube(url)
-                download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt._title)}','4k' if resol == "2" else "FHD")
-                if capts =='1':
-                    caption = ytt.captions.get_by_language_code('en')
-                    caption.download(srt=True,output_path=f'./videos/{playlist.title}')
-                print(f"Downloaded: {c}. "+ytt._title)
+                if not ytt.title:
+                    continue
+                download_video(url,f'./videos/{playlist.title}/{c}. {ytt.title}','4K' if resol == "2" else "FHD")
+                print(f"Downloaded: {c}. "+ytt.title)
             elif c>n2:
                 break
         c+=1

@@ -1,0 +1,3 @@
+ffmpeg-python
+eyed3
+pytube
