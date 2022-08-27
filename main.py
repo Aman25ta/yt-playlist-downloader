@@ -35,8 +35,11 @@ def download_video(link, path, res_level='FHD'):
             break
         except:
             continue
-    subprocess.run(f'ffmpeg -i \"./temp/video_{uid}.mp4\" -i \"./temp/audio_{uid}.mp3\" -c copy \"{path}.mp4\"')
     
+    audio = ffmpeg.input(f'./temp/audio_{uid}.mp3')
+    video = ffmpeg.input(f'./temp/video_{uid}.mp4')
+    ffmpeg.output(audio, video, f'{path}.mp4').run(overwrite_output=True)
+
     os.remove(f"./temp/audio_{uid}.mp3")
     os.remove(f'./temp/video_{uid}.mp4')
     return
