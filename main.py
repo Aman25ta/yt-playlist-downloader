@@ -13,11 +13,9 @@ import ffmpeg
 
 letters = string.ascii_lowercase
 uid = ''.join(random.choice(letters) for i in range(6))
-
-
 def clean_filename(name):
         forbidden_chars = '"*\\/\'.|?:<>'
-        filename = (''.join([x if x not in forbidden_chars else '#' for x in name])).replace('  ', ' ').strip()
+        filename = (''.join([x if x not in forbidden_chars else '' for x in name])).replace('  ', ' ').strip()
         if len(filename) >= 176:
             filename = filename[:170] + '...'
         return filename 
@@ -37,18 +35,8 @@ def download_video(link, path, res_level='FHD'):
             break
         except:
             continue
-        
-    audio = ffmpeg.input(f'./temp/audio_{uid}.mp3')
-    video = ffmpeg.input(f'./temp/video_{uid}.mp4')
-    filename = path
+    subprocess.run(f'ffmpeg -i \"./temp/video_{uid}.mp4\" -i \"./temp/audio_{uid}.mp3\" -c copy \"{path}.mp4\"')
     
-    duplicated = ['', '1', '2', '3', '4', '5']    #if duplicated filename found, append with version number
-    for dup in duplicated:
-        try:
-            ffmpeg.output(audio, video, filename+dup+'.mp4').run()
-            break
-        except:
-            continue
     os.remove(f"./temp/audio_{uid}.mp3")
     os.remove(f'./temp/video_{uid}.mp4')
     return
@@ -59,7 +47,7 @@ def process(song,artist,link,title,track_num,playlist_t):
    '''ffmpeg -i "./songs/{playlist_t}/{title}".mp4 "./songs/{playlist_t}/{track_num}. {title}".mp3'''
    ppath = song.replace('.mp4','')
    ppath = ppath.replace('.mp3','')
-   subprocess.run(f'C:/ffmpeg/bin/ffmpeg.exe -i \"{ppath}\".mp4 \"{ppath}\".mp3',shell=True)
+   subprocess.run(f'ffmpeg -i \"{ppath}\".mp4 \"{ppath}\".mp3',shell=True)
 
    os.remove(f"{ppath}.mp4")
 
@@ -132,14 +120,30 @@ elif typ_dld ==2:
             ytt = pytube.YouTube(url)
             if not ytt.title:
                 continue
-            download_video(url,f'./videos/{playlist.title}/{c}. {ytt.title}','4K' if resol == "2" else "FHD")
+            try:
+                os.mkdir('./videos')
+            except:
+                pass
+            try:
+                os.mkdir(f'./videos/{playlist.title}')
+            except:
+                pass
+            download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt.title)}','4K' if resol == "2" else "FHD")
             print(f"Downloaded: {c}. "+ytt.title)
         else:
             if c>=n1 and c<=n2:
                 ytt = pytube.YouTube(url)
                 if not ytt.title:
                     continue
-                download_video(url,f'./videos/{playlist.title}/{c}. {ytt.title}','4K' if resol == "2" else "FHD")
+                try:
+                    os.mkdir('./videos')
+                except:
+                    pass
+                try:
+                    os.mkdir(f'./videos/{playlist.title}')
+                except:
+                    pass
+                download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt.title)}','4K' if resol == "2" else "FHD")
                 print(f"Downloaded: {c}. "+ytt.title)
             elif c>n2:
                 break
