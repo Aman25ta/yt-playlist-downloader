@@ -21,7 +21,7 @@ def clean_filename(name):
         return filename 
     
 def download_video(link, path, res_level='FHD'):
-    yt = pytube.YouTube(link)
+    yt = pytube.YouTube(link, use_oauth=True, allow_oauth_cache=True)
     print(yt.title, '|', yt.author, '|', yt.publish_date.strftime("%Y-%m-%d"), '|', yt.views, '|', yt.length, 'sec')
     
     if res_level == '4K':
@@ -103,13 +103,14 @@ except:
 if typ_dld == 1:
    for url in playlist:
       if rng==0:
-         ytt = pytube.YouTube(url)
+         
+         ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
          path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
          process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
          print(f"Downloaded: {c}. "+ytt.title)
       else:
          if c>=n1 and c<=n2:
-            ytt = pytube.YouTube(url)
+            ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
             path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
             process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
             print(f"Downloaded: {c}. "+ytt.title)
@@ -120,7 +121,7 @@ elif typ_dld ==2:
     resol = input("Enter resolution (if available, Default FHD);\n1: Upto FHD\n2: Upto 4k\n")
     for url in playlist:
         if rng==0:
-            ytt = pytube.YouTube(url)
+            ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
             if not ytt.title:
                 continue
             try:
@@ -135,7 +136,7 @@ elif typ_dld ==2:
             print(f"Downloaded: {c}. "+ytt.title)
         else:
             if c>=n1 and c<=n2:
-                ytt = pytube.YouTube(url)
+                ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
                 if not ytt.title:
                     continue
                 try:
