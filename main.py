@@ -78,64 +78,59 @@ def process(song,artist,link,title,track_num,playlist_t):
    
    os.remove(f'cover_{uid}.jpg')
 
-xurl = str(input("Enter url: "))
+xurlx = str(input("Enter url: "))
 
 typ_dld = int(input("Enter 1 for mp3, 2 for mp4: "))
-if typ_dld != 1 and typ_dld != 2:
+if typ_dld != 1 and typ_dld != 2 and typ_dld != 3341:
    print("Invalid input")
    sys.exit()
-
-playlist = pytube.Playlist(xurl)
-c=1
-rng = str(input(f"Enter range from 1-{len(playlist)} (split by - , includes both, 0 for none): "))
-if rng!="0":
-   n1 = rng.split("-")[0].strip(" ")
-   n2 = rng.split("-")[1].strip(" ")
+if typ_dld == 3341:
+    typ_dld = 1
+    txp = 3341
 else:
-   rng=0
-   n1=n2=0
-try:
-   n1=int(n1)
-   n2=int(n2)
-except:
-   print("Invalid range.")
-   rng = 0
-if typ_dld == 1:
-   for url in playlist:
-      if rng==0:
-         
-         ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
-         path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
-         process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
-         print(f"Downloaded: {c}. "+ytt.title)
-      else:
-         if c>=n1 and c<=n2:
-            ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
-            path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
-            process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
-            print(f"Downloaded: {c}. "+ytt.title)
-         elif c>n2:
-            break
-      c+=1
-elif typ_dld ==2:
-    resol = input("Enter resolution (if available, Default FHD);\n1: Upto FHD\n2: Upto 4k\n")
-    for url in playlist:
-        if rng==0:
-            ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
-            if not ytt.title:
-                continue
-            try:
-                os.mkdir('./videos')
-            except:
-                pass
-            try:
-                os.mkdir(f'./videos/{playlist.title}')
-            except:
-                pass
-            download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt.title)}','4K' if resol == "2" else "FHD")
-            print(f"Downloaded: {c}. "+ytt.title)
-        else:
-            if c>=n1 and c<=n2:
+    txp = 0
+
+def dlall(xurl,ask_range):
+    playlist = pytube.Playlist(xurl)
+    c=1
+    if ask_range == 1:
+        rng = str(input(f"Enter range from 1-{len(playlist)} (split by - , includes both, 0 for none): "))
+    else:
+        rng = "0"
+    
+    if rng!="0":
+        n1 = rng.split("-")[0].strip(" ")
+        n2 = rng.split("-")[1].strip(" ")
+    else:
+        rng=0
+        n1=n2=0
+    try:
+        n1=int(n1)
+        n2=int(n2)
+    except:
+        print("Invalid range.")
+        rng = 0
+    if typ_dld == 1:
+        for url in playlist:
+            if rng==0:
+            
+                ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
+                path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
+                process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
+                print(f"Downloaded: {c}. "+ytt.title)
+            else:
+                if c>=n1 and c<=n2:
+                    ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
+                    path = ytt.streams.get_audio_only().download(f"./songs/{playlist.title}",filename_prefix=f"{c}. ")
+                    process(f"./songs/{playlist.title}/"+path.split('\\')[-1],ytt.author,ytt.thumbnail_url,ytt.title,c,playlist.title)
+                    print(f"Downloaded: {c}. "+ytt.title)
+                elif c>n2:
+                    break
+            c+=1
+    elif typ_dld ==2:
+        resol = input("Enter resolution (if available, Default FHD);\n1: Upto FHD\n2: Upto 4k\n")
+        for url in playlist:
+            if rng==0:
                 ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
                 if not ytt.title:
                     continue
@@ -149,7 +144,33 @@ elif typ_dld ==2:
                     pass
                 download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt.title)}','4K' if resol == "2" else "FHD")
                 print(f"Downloaded: {c}. "+ytt.title)
-            elif c>n2:
-                break
-        c+=1
+            else:
+                if c>=n1 and c<=n2:
+                    ytt = pytube.YouTube(url, use_oauth=True, allow_oauth_cache=True)
+                    if not ytt.title:
+                        continue
+                    try:
+                        os.mkdir('./videos')
+                    except:
+                        pass
+                    try:
+                        os.mkdir(f'./videos/{playlist.title}')
+                    except:
+                        pass
+                    download_video(url,f'./videos/{playlist.title}/{c}. {clean_filename(ytt.title)}','4K' if resol == "2" else "FHD")
+                    print(f"Downloaded: {c}. "+ytt.title)
+                elif c>n2:
+                    break
+            c+=1
+    
+
+
+if txp == 3341:
+    urllist = xurlx.split(",")
+    for i in urllist:
+        dlall(i,0)
+        print(1)
+else:
+    dlall(xurlx,1)
+
 print("Downloaded.")
